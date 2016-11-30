@@ -1,0 +1,2 @@
+jre_dir: /opt/java/jre-{{jre_version}}
+jre_url: http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jre-{{jre_version}}-linux-x64.tar.gz

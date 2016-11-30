@@ -1,0 +1,10 @@
+---
+- hosts: integration1
+  become: true
+  vars:
+
+    artifact_version: '1.0-SNAPSHOT'
+
+  roles:
+#  - { role: install_java, jre_version: '8u111' }
+  - { role: spring_boot_app, app_name: 'test-service' }

@@ -1,0 +1,68 @@
+---
+- hosts: integration1
+  become: true
+  vars:
+
+    artifact_version: '1.0-SNAPSHOT'
+    artifact_url: 'https://github.com/alexandreandrei/test-spring-boot/raw/master/target/test-service-{{artifact_version}}.jar'
+
+    jre_version: '8u111'
+    jre_dir: /opt/java/jre-{{jre_version}}
+    jre_url: http://download.oracle.com/otn-pub/java/jdk/8u111-b14/jre-{{jre_version}}-linux-x64.tar.gz
+
+    app_name: test_app
+    app_dir: /apps/{{app_name}}/app
+
+    log_dir: /apps/{{app_name}}/log
+
+  tasks:
+
+  - name: Download JRE archive.
+    get_url: 
+      url: '{{jre_url}}'
+      dest: /tmp/jre-{{jre_version}}-linux-x64.tar.gz
+      headers: 'Cookie: oraclelicense=accept-securebackup-cookie'
+
+  - name: Create the JRE target directory.
+    file:
+      path: '{{jre_dir}}'
+      state: directory
+      recurse: yes
+
+  - name: Uncompress the JRE archive.
+    unarchive:
+      copy: no
+      src: /tmp/jre-{{jre_version}}-linux-x64.tar.gz
+      dest: '{{jre_dir}}'
+
+  - name: Create 'app' and 'log' directory.
+    file:
+      path: '{{item}}'
+      state: directory
+    with_items:
+      - '{{app_dir}}'
+      - '{{log_dir}}'
+
+  - name: Download app artifact.
+    get_url:
+      url: '{{artifact_url}}'
+      dest: '{{app_dir}}/{{app_name}}.jar'
+    notify: 
+    - start_service
+
+  handlers:
+    - name: start_service
+      shell: 'nohup {{jre_dir}}/bin/java -jar {{app_dir}}/{{app_name}}.jar > {{log_dir}}/out.log &'
+      notify: wait_for_connection
+    - name: wait_for_connection
+      wait_for:
+        delay: 15
+        host: 127.0.0.1
+        port: 8080
+        timeout: 60
+      notify: check_webservice
+    - name: check_webservice
+      uri:
+        url: http://localhost:8080/hello
+
+

@@ -1,0 +1,3 @@
+app_dir: /apps/{{app_name}}/app
+log_dir: /apps/{{app_name}}/log
+artifact_url: 'https://github.com/alexandreandrei/test-spring-boot/raw/master/target/{{app_name}}-{{artifact_version}}.jar'

@@ -1,0 +1,14 @@
+- name: Create 'app' and 'log' directory.
+  file:
+    path: '{{item}}'
+    state: directory
+  with_items:
+    - '{{app_dir}}'
+    - '{{log_dir}}'
+
+- name: Download app artifact.
+  get_url:
+    url: '{{artifact_url}}'
+    dest: '{{app_dir}}/{{app_name}}.jar'
+  notify:
+  - start_service

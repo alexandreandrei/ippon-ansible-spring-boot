@@ -1,0 +1,13 @@
+- name: start_service
+  shell: 'nohup {{jre_dir}}/bin/java -jar {{app_dir}}/{{app_name}}.jar > {{log_dir}}/out.log &'
+  notify: wait_for_connection
+- name: wait_for_connection
+  wait_for:
+    delay: 15
+    host: 127.0.0.1
+    port: 8080
+    timeout: 60
+  notify: check_webservice
+- name: check_webservice
+  uri:
+    url: http://localhost:8080/hello
